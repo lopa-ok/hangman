@@ -5,23 +5,43 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
         }
         .hidden-word {
             font-size: 24px;
             letter-spacing: 10px;
+            margin: 20px;
         }
         .message {
             font-size: 18px;
             color: red;
+            margin: 10px;
+        }
+        .input-section {
+            margin: 20px;
+        }
+        #hangmanCanvas {
+            border: 1px solid #000;
+            background-color: #fff;
+            margin: 20px;
         }
     </style>
 </head>
 <body>
     <h1>Hangman Game</h1>
+    <canvas id="hangmanCanvas" width="200" height="200"></canvas>
     <div class="hidden-word" id="hiddenWord"></div>
     <div class="message" id="message"></div>
-    <input type="text" id="guessInput" maxlength="1">
-    <button onclick="makeGuess()">Guess</button>
+    <div class="input-section">
+        <input type="text" id="guessInput" maxlength="1">
+        <button onclick="makeGuess()">Guess</button>
+    </div>
     <div id="wrongGuesses"></div>
     <div id="remainingAttempts"></div>
 
