@@ -1,12 +1,31 @@
-const words = ["arcade", "hangman", "coding", "developer"];
 const maxAttempts = 6;
 let attempts = 0;
-let chosenWord = words[Math.floor(Math.random() * words.length)];
-let hiddenWordArray = Array(chosenWord.length).fill("_");
+let chosenWord = "";
+let hiddenWordArray = [];
 let wrongGuesses = [];
 
-document.getElementById("hiddenWord").textContent = hiddenWordArray.join(" ");
-document.getElementById("remainingAttempts").textContent = `Remaining Attempts: ${maxAttempts - attempts}`;
+async function fetchRandomWord() {
+    const response = await fetch("https://random-word-api.herokuapp.com/word");
+    const data = await response.json();
+    return data[0];
+}
+
+async function initializeGame() {
+    attempts = 0;
+    wrongGuesses = [];
+    chosenWord = await fetchRandomWord();
+    hiddenWordArray = Array(chosenWord.length).fill("_");
+
+    document.getElementById("hiddenWord").textContent = hiddenWordArray.join(" ");
+    document.getElementById("wrongGuesses").textContent = "";
+    document.getElementById("remainingAttempts").textContent = `Remaining Attempts: ${maxAttempts - attempts}`;
+    document.getElementById("message").textContent = "";
+    document.getElementById("guessInput").disabled = false;
+
+    const canvas = document.getElementById("hangmanCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
 
 function makeGuess() {
     const guessInput = document.getElementById("guessInput");
@@ -19,9 +38,11 @@ function makeGuess() {
     }
 
     if (wrongGuesses.includes(guess) || hiddenWordArray.includes(guess)) {
-        alert("You have already guessed that letter.");
+        document.getElementById("message").textContent = "You have already guessed that letter.";
         return;
     }
+
+    document.getElementById("message").textContent = ""; // Clear message on valid input
 
     if (chosenWord.includes(guess)) {
         for (let i = 0; i < chosenWord.length; i++) {
@@ -46,9 +67,11 @@ function checkGameStatus() {
     if (hiddenWordArray.join("") === chosenWord) {
         document.getElementById("message").textContent = "Congratulations! You won!";
         document.getElementById("guessInput").disabled = true;
+        setTimeout(initializeGame, 3000); // Restart the game after 3 seconds
     } else if (attempts >= maxAttempts) {
         document.getElementById("message").textContent = `Game Over! The word was ${chosenWord}.`;
         document.getElementById("guessInput").disabled = true;
+        setTimeout(initializeGame, 3000); // Restart the game after 3 seconds
     }
 }
 
@@ -109,3 +132,13 @@ function drawHangman(attempt) {
             break;
     }
 }
+
+// Add event listener for Enter key
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("guessInput").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            makeGuess();
+        }
+    });
+    initializeGame();
+});
